@@ -1,5 +1,6 @@
 ddlGeneratorPSQLFromExcel
 ====
+# Thanks: https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel
 
 ## Description
 This VBA generates DDL sequence in SQL for PostgreSQL from excel sheets.
@@ -12,55 +13,15 @@ You can execute this program as Excel macro.
 * Microsoft Forms 2.0 Object Library
 
 ## Usage
-1. Write table definition in Excel like sample.xlsm.
+1. Write table definition in Excel like DDLGeneratorPSQL.xlsm.
+2. setting dest excel for creating ddl.
+3. setting ddl params
+4. click create ddl button.
 
-NOTE: *You must define a PRIMARY KEY on the "id" column in all tables.*
+![image](https://user-images.githubusercontent.com/32559839/134522634-dbcd1119-13c4-4b99-b777-1687a5405fe0.png)
 
-*Then, this VBA generates correct sql syntax.*
-
-2. Create new macro in Excel.
-3. Open Code window for editing macros.
-4. Open Tool -> References and check Microsoft VBScript Regular Expressions 5.5. Then click OK.
-5. Import vba_ddl_generator.bas and TableHeader.cls into Code window.
-6. Open TableHeader class file and edit code below, depending on table definition written in spreadsheets.
-
-```vbs
-Private Sub Class_Initialize()
-    cellTableName = "B1"         'Cell of table name
-    rowCommentTbl = "E1"         'Row name of comment on a table
-    lineNoFirstCol = 4           'First column number of filelds
-    rowColName = "A"             'Row name of physical column name
-    rowDType = "B"               'Row name of data type
-    rowLen = "C"                 'Row name of length
-    rowPkey = "D"                'Row name of PK which is specified or not
-    rowNotNull = "E"             'Row name of NN which is specified or not
-    rowConstr = "F"              'Row name of Constrains(FK,UNIQUE)
-    rowCommentCol = "G"          'Row name of comment on each column
-End Sub
-```
-## Sample 
-Please refer to sample.xlsx in this repository.
-https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/master/sample.xlsx
-
-The below diagram shows the ER diagram of data model written in sample.xlsm.
-<img src="https://github.com/yappynoppy/ddlGeneratorPSQLFromExcel/blob/master/er_diagram.png" width="600px">
-
-## Contribution
-
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -m 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-
-*Remember that we have a pre-push hook with steps that analyzes and prevents mistakes.*
-
-**After your pull request is merged**, you can safely delete your branch.
+## created ddl.sql is saved under sql, as
+* sql/ddl_2021-09-23-23-05-03.sql
 
 ## Licence
-
 MIT
-
-# Thanks
-c0metssd @ ウィキ - excelからDDLを作成するマクロ例
-
-https://www62.atwiki.jp/c0metssd/pages/81.html
