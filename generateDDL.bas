@@ -35,7 +35,7 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
     Dim Str As String
     Str = ""
     Dim TableName As String
-    TableName = Range(tableHeader.cellTableName).value
+    TableName = Range(tableHeader.cellTableName).Value
     Dim fields As String
     fields = ""
     Dim alters As String
@@ -44,8 +44,8 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
     Dim pkey: pkey = ""
     Do
         Dim nn As String
-        If StrComp("y", Range(tableHeader.rowNotNull & lineNo).value) = 0 _
-          Or Range(tableHeader.rowNotNull & lineNo).value = "Åõ" Then
+        If StrComp("y", Range(tableHeader.rowNotNull & lineNo).Value) = 0 _
+          Or Range(tableHeader.rowNotNull & lineNo).Value = "Åõ" Then
             nn = ""
         Else
             nn = " NOT NULL"
@@ -53,16 +53,20 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
         
         Dim dtype As String
         Dim tVal As String
-        tVal = Range(tableHeader.rowDType & lineNo).value
+        tVal = Range(tableHeader.rowDType & lineNo).Value
+        Dim dlen As String: dlen = Range(tableHeader.rowLen & lineNo).Value
         If StrComp("varchar", tVal) = 0 Then
-            Dim dlen As String: dlen = Range(tableHeader.rowLen & lineNo).value
             If dlen = "" Then
                 MsgBox "length n of varchar(n) is not specified."
                 Exit Function
             End If
             dtype = "character varying(" & dlen & ")"
         ElseIf StrComp("char", tVal) = 0 Then
-            dtype = tVal
+            If dlen = "" Then
+                MsgBox "length n of varchar(n) is not specified."
+                Exit Function
+            End If
+            dtype = tVal & "(" & dlen & ")"
         ElseIf StrComp("serial", tVal) = 0 Then
             dtype = tVal
         ElseIf StrComp("boolean", tVal) = 0 Then
@@ -90,18 +94,18 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
             fields = fields & ","
         End If
         
-        Dim ColumnName As String: ColumnName = Range(tableHeader.rowColName & lineNo).value
+        Dim ColumnName As String: ColumnName = Range(tableHeader.rowColName & lineNo).Value
         fields = fields & " " & ColumnName & " " & dtype & nn & vbNewLine
         
         ' Primary Key
-        If IsTestOK(Range(tableHeader.rowPkey & lineNo).value, "P") Then
+        If IsTestOK(Range(tableHeader.rowPkey & lineNo).Value, "P") Then
             If Len(pkey) <> 0 Then
                 pkey = pkey & ","
             End If
             pkey = pkey & ColumnName
         End If
     
-        Dim fkWork: fkWork = Range(tableHeader.rowConstr & lineNo).value
+        Dim fkWork: fkWork = Range(tableHeader.rowConstr & lineNo).Value
         
         ' Unique
         If InStr(fkWork, "UNIQUE") <> 0 Then
@@ -136,17 +140,17 @@ Private Function CreateTable(saveName, tableHeader As tableHeader)
         End If
     
         ' Comment on each column
-        alters = alters & "COMMENT ON COLUMN " & TableName & "." & ColumnName & " IS '" & Range(tableHeader.rowCommentCol & lineNo).value & "';" & vbNewLine
+        alters = alters & "COMMENT ON COLUMN " & TableName & "." & ColumnName & " IS '" & Range(tableHeader.rowCommentCol & lineNo).Value & "';" & vbNewLine
 
         lineNo = lineNo + 1
         
-    Loop While Range(tableHeader.rowColName & lineNo).value <> ""
+    Loop While Range(tableHeader.rowColName & lineNo).Value <> ""
     
     ' Comment on table
     If Len(pkey) <> 0 Then
         alters = alters & "ALTER TABLE ONLY " & TableName & " ADD CONSTRAINT m_" & TableName & "_pkey PRIMARY KEY (" & pkey & ");" & vbNewLine
     End If
-    alters = alters & "COMMENT ON TABLE " & TableName & " IS '" & Range(tableHeader.rowCommentTbl).value & "';" & vbNewLine
+    alters = alters & "COMMENT ON TABLE " & TableName & " IS '" & Range(tableHeader.rowCommentTbl).Value & "';" & vbNewLine
     'alters = alters & "ALTER TABLE public." & TableName & " OWNER TO " & tableHeader.ownerName & ";" & vbNewLine
     
     '
@@ -190,7 +194,7 @@ End Function
 Sub generateDDL()
 Attribute generateDDL.VB_ProcData.VB_Invoke_Func = "g\n14"
     Dim ddlPath As String
-    ddlPath = Sheet1.Range("B1").Text
+    ddlPath = fso.BuildPath(Sheet1.Range("B1").Text, Sheet1.Range("D1").Text)
     If Not fso.FileExists(ddlPath) Then
         MsgBox "TABLEíËã`ExcelÇ™å©Ç¬Ç©ÇËÇ‹ÇπÇÒ. " & vbCrLf & "excelpath" & ddlPath, vbExclamation
         End
@@ -215,6 +219,7 @@ Attribute generateDDL.VB_ProcData.VB_Invoke_Func = "g\n14"
             Sheet1.Range("O" & r) = dbSheet.Range("AB4").Text
             saveName = dbSheet.Range("AB4").Text
             dbSheet.Activate
+            Debug.Print saveName
             sqlStr = sqlStr & CreateTable(saveName, tableHeader)
             
             r = r + 1
